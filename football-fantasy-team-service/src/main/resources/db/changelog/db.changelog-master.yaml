@@ -1,0 +1,96 @@
+databaseChangeLog:
+
+   - changeSet:
+      id: team
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Creating Team, TeamPlayer and TeamGameweekPerformance.
+           strip-comments: true
+           sql: |
+
+              create table teams(
+                 id bigint primary key auto_increment,
+                 created_on timestamp not null default current_timestamp,
+                 modified_on timestamp not null default current_timestamp,
+                 total_points int not null,
+                 free_transfers int not null,
+                 name varchar(100) not null,
+                 captain_id bigint not null,
+                 vice_captain_id bigint not null,
+                 user_id bigint not null);
+
+              create table team_players(
+                 id bigint primary key auto_increment,
+                 created_on timestamp not null default current_timestamp,
+                 modified_on timestamp not null default current_timestamp,
+                 points int not null,
+                 on_bench boolean not null,
+                 player_id bigint not null,
+                 team_id bigint not null);
+
+              alter table team_players add constraint fk_user_team foreign key(team_id) references teams(id);
+
+              create table team_gameweek_performances(
+                 id bigint primary key auto_increment,
+                 created_on timestamp not null default current_timestamp,
+                 modified_on timestamp not null default current_timestamp,
+                 points int not null,
+                 team_id bigint not null,
+                 gameweek_id bigint not null);
+
+              alter table team_gameweek_performances add constraint fk_utgp_user_team foreign key(team_id) references teams(id);
+
+   - changeSet:
+      id: team-money-remaining
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Adding money remaining field in team
+           strip-comments: true
+           sql: |
+           
+              alter table teams add money_remaining decimal(3,1) not null;
+
+   - changeSet:
+      id: league
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Leagues, team league memberships
+           strip-comments: true
+           sql: |
+           
+              create table leagues(
+                 id bigint primary key auto_increment,
+                 created_on timestamp not null default current_timestamp,
+                 modified_on timestamp not null default current_timestamp,
+                 name varchar(50) not null
+              );
+
+              create table team_league_memberships(
+                 id bigint primary key auto_increment,
+                 created_on timestamp not null default current_timestamp,
+                 modified_on timestamp not null default current_timestamp,
+                 team_id bigint not null,
+                 league_id bigint not null
+              );
+
+              alter table team_league_memberships add constraint fk_tlm_team foreign key(team_id) references teams(id);
+              alter table team_league_memberships add constraint fk_tlm_league foreign key(league_id) references leagues(id);
+
+   - changeSet:
+      id: league-owner
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Adding owner_id field in leagues
+           strip-comments: true
+           sql: |
+           
+              alter table leagues add owner_id bigint not null;
+

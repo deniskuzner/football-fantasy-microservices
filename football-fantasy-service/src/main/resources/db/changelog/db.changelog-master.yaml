@@ -1,0 +1,187 @@
+databaseChangeLog:
+
+   - changeSet:
+      id: clubs-players
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Clubs and players
+           strip-comments: true
+           sql: |
+           
+              create table clubs(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 url varchar(40) not null, 
+                 name varchar(40) not null,
+                 image varchar(100));
+
+              create table players(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 url varchar(40) not null, 
+                 name varchar(40) not null,
+                 nationality varchar(40),
+                 birth_date varchar(40),
+                 age varchar(10),
+                 position varchar(10),
+                 height varchar(10),
+                 weight varchar(10),
+                 image varchar(100),
+                 club_id bigint);
+
+              alter table players add constraint fk_players_club foreign key(club_id) references clubs(id);
+
+   - changeSet:
+      id: gameweeks-matches
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Gameweeks and matches
+           strip-comments: true
+           sql: |
+           
+              create table gameweeks(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 order_number int not null);
+
+              create table matches(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 url varchar(100),
+                 result varchar(10),
+                 date_time timestamp default current_timestamp,
+                 venue varchar(50),
+                 host_id bigint not null,
+                 guest_id bigint not null,
+                 gameweek_id bigint not null);
+
+              alter table matches add constraint fk_host_club foreign key(host_id) references clubs(id);
+              alter table matches add constraint fk_guest_club foreign key(guest_id) references clubs(id);
+              alter table matches add constraint fk_match_gameweek foreign key(gameweek_id) references gameweeks(id);
+
+   - changeSet:
+      id: match-events
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Match events, cards, goals, minutes played and substitutions
+           strip-comments: true
+           sql: |
+
+              create table match_events(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 match_id bigint not null,
+                 minute varchar(10) not null,
+                 result varchar(10) not null,
+                 club_id bigint not null);
+
+              alter table match_events add constraint fk_event_match foreign key(match_id) references matches(id);
+              alter table match_events add constraint fk_event_club foreign key(club_id) references clubs(id);
+
+              create table cards(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 card varchar(50) not null,
+                 player_id bigint not null);
+
+              alter table cards add constraint fk_card_player foreign key(player_id) references players(id);
+
+              create table goals(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 goal_player_id bigint not null,
+                 own_goal boolean not null);
+
+              alter table goals add constraint fk_goal_player foreign key(goal_player_id) references players(id);
+
+              create table minutes_played(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 minutes_played int not null,
+                 player_id bigint not null);
+
+              alter table minutes_played add constraint fk_player_minutes foreign key(player_id) references players(id);
+
+              create table substitutions(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 in_player_id bigint not null,
+                 out_player_id bigint not null);
+
+              alter table substitutions add constraint fk_in_player foreign key(in_player_id) references players(id);
+              alter table substitutions add constraint fk_out_player foreign key(out_player_id) references players(id);
+
+
+   - changeSet:
+      id: player-gameweek-performance
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Player gameweek performances
+           strip-comments: true
+           sql: |
+           
+              create table player_gameweek_performances(
+                 id bigint primary key auto_increment, 
+                 created_on timestamp not null default current_timestamp, 
+                 modified_on timestamp not null default current_timestamp, 
+                 player_id bigint not null,
+                 gameweek_id bigint not null,
+                 points int not null);
+
+              alter table player_gameweek_performances add constraint fk_performance_player foreign key(player_id) references players(id);
+              alter table player_gameweek_performances add constraint fk_performance_gameweeek foreign key(gameweek_id) references gameweeks(id);
+
+   - changeSet:
+      id: match-sent
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Adding sent field in match
+           strip-comments: true
+           sql: |
+           
+              alter table matches add sent boolean;
+
+   - changeSet:
+      id: club-manager
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Adding manager field in club
+           strip-comments: true
+           sql: |
+           
+              alter table clubs add manager varchar(40) not null;
+
+   - changeSet:
+      id: price-points
+      author: deniskuzner@gmail.com
+      
+      changes:
+         - sql:
+           comment: Adding price and totalPoints fields in Player
+           strip-comments: true
+           sql: |
+           
+              alter table players
+              add price decimal(3,1) not null,
+              add total_points int not null;
