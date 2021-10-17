@@ -11,7 +11,7 @@ The following microservices were created as a result of incremental decompositio
 + `` football-fantasy-stats-service `` - function of statistics and points calculation
 + `` football-fantasy-team-service `` - managing domain object Team
 + `` football-fantasy-user-service `` - managing domain object User
-+ `` ootball-fantasy-service `` - the rest of the monolithic application for which further decomposition did not prove justified because it contains frequently used functions by other microservices to which they do not belong logically
++ `` football-fantasy-service `` - the rest of the monolithic application for which further decomposition did not prove justified because it contains frequently used functions by other microservices to which they do not belong logically
 + `` football-fantasy-gateway `` - function of receiving and routing client requests
 
 The following figure shows the system architecture.
